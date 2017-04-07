@@ -20,7 +20,7 @@ int main (int argc, const char * argv[] ){
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
 	   Therefore, number of arguments must be 2 */
-	if(argc >3){
+	if(argc!=2){
 		printf("[ERROR][factory_manager] Invalid file");
 	}
 
