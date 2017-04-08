@@ -17,12 +17,16 @@
 #define BUFFER_SIZE 1024
 #define STDOUT_FILENO 1
 
+
+/*
+   It checks if a string is a number or not
+   If it is a number 0 is returned
+   Otherwise a -1 is returned
+ */
 int check_number(char *argv){
 								int i = 0;              /* Aux variable */
 								int len = strlen(argv); /* len stores the lenght of the string stored in argvv, this is, the number of digits */
 								int num_processes;
-
-
 								/* The loop returns 0 if structure -/+<number>; else, returns -1 */
 								while(i<len) {
 																if((argv[i]>47) && (argv[i]<58)) {        /* The char is a number */
@@ -37,12 +41,35 @@ int check_number(char *argv){
 
 int parser (char *buf, int size){
 								char * pch;
+								int *arr;
+								int sizeArr = 0;//The size of the in array
 								pch = strtok (buf," ");
-								while (pch != NULL )
+								printf("Primer while\n");
+								while (pch != NULL) //I calculate the size of the array
 								{
-																printf ("%s\n",pch);
+																//printf ("%s\n",pch);
 																pch = strtok (NULL, " ");
+																sizeArr++;
 								}
+								//arr[sizeArr];
+								printf("%i\n", sizeArr);
+								arr = malloc(sizeof(int)*(sizeArr-1));
+								pch = strtok (buf," ");
+								sizeArr=0;
+								printf("Segundo while\n");
+								while (pch != NULL) //I calculate the size of the array
+								{
+																//printf ("%s\n",pch);
+																pch = strtok (NULL, " ");
+																printf("dentro\n");
+																if(check_number(pch)==0){
+																	printf("La liamos\n");
+																	arr[sizeArr] = atoi(pch);
+																}
+																else return -1;
+																sizeArr++;
+								}
+
 								return 0;
 }
 
@@ -95,9 +122,9 @@ int main (int argc, const char * argv[] ){
 																								perror("[ERROR][factory_manager] Invalid file read\n"); // Error message
 																								exit(-1);
 																}
-
+																printf("Entramos\n");
 																parser(buf,size);
-
+																printf("Salimos\n");
 
 																/* Check for errors when reading input file */
 																if (n<0) {
