@@ -44,25 +44,25 @@ int check_number(char *argv){
    It calculates the number of integers in an string divided by spaces
    Return the number of integers
  */
-int calculateSize (char *buf){
-								char * pch;
+ int calculateSize (char *buf){
+ 								char * pch;
 
-								int sizeArr = 0;//The size of the in array
-								pch = strtok (buf," ");
-								printf("%s in iteration %i\n",pch, sizeArr);
-								while (pch != NULL) //I calculate the size of the array
-								{
+ 								int sizeArr = 1;//The size of the in array
+ 								pch = strtok (buf," ");
+ 								printf("%s in iteration %i\n",pch, sizeArr);
+ 								while (pch != NULL) //I calculate the size of the array
+ 								{
 
-																pch = strtok (NULL, " ");
-																//if(strcmp(pch,"\n") != 0){
-																	sizeArr++;
-																printf("%i\n",sizeArr);
-																printf("%s in iteration %i\n",pch, sizeArr);
-															//}
-								}
-								printf("Bye\n");
-								return sizeArr;
-}
+ 																pch = strtok (NULL, " ");
+ 																if(pch != NULL && strcmp(pch,"\n") != 0){
+ 																	sizeArr++;
+ 																printf("%i\n",sizeArr);
+ 																printf("%s in iteration %i\n",pch, sizeArr);
+ 															}
+ 								}
+ 								printf("Bye\n");
+ 								return sizeArr;
+ }
 
 /*
    It reads the file and returns 0 if it is no problem
