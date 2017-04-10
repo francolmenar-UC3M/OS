@@ -3,7 +3,7 @@
  * factory_manager.c
  *
  */
-
+/* Parser works now perfectly and the result is stored into a matrix*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
