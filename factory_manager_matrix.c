@@ -1,4 +1,4 @@
-*
+/*
  *
  * factory_manager.c
  *
@@ -25,54 +25,54 @@ int parser (char* buf, int size){
 	
 	int i = 0;
 	char aux[size];
+	
+	aux[0] = '\0';
 	char aux2[2];
-	printf("0: %c\n",buf[0]);
-	printf("1: %c\n",buf[1]);
-	printf("2: %c\n",buf[2]);
-	printf("3: %c\n",buf[3]);
+	aux2[1] = '\0';
 	
 	while(check_number(buf[i])==0){
-		printf("i: %c\n",i,buf[i]);
 		aux2[0]=buf[i];
 		strcat(aux,aux2);
 		i++;
 	}
 	
+	if (atoi(aux)!=0){
+		int param[atoi(aux)][3];
 	
-	int param[atoi(aux)][3];
+		int j = 0;
+		int k = 0;
 	
-	int j = 0;
-	int k = 0;
-	
-	while (buf[i]!=EOF){
-		if (check_number(buf[i])==0){
-			printf("%i: %c\n",i,buf[i]);
-			memset(aux,0,sizeof aux);
-			while(check_number(buf[i])==0){
-				aux2[0]=buf[i];
-				strcat(aux,aux2);
+		while (i<size){
+			if (check_number(buf[i])==0){
+				memset(aux,0,sizeof aux);
+				while(check_number(buf[i])==0){
+					aux2[0]=buf[i];
+					strcat(aux,aux2);
+					i++;
+				}
+				param[j][k] = atoi(aux);
+				if (k = 2){
+					k = 0;
+					j++;
+				}
+				else{
+					k++;
+				}
+			}
+			else if (buf[i]==32){
 				i++;
 			}
-			param[j][k] = atoi(aux);
-			if (k = 2){
-				k = 0;
-				j++;
-			}
 			else{
-				k++;
+				printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
+				return -1;
 			}
 		}
-		else if (buf[i]==32){
-			printf("%i: %c\n",i,buf[i]);
-			i++;
-		}
-		else{
-			printf("%i: %c\n",i,buf[i]);
-			printf("[ERROR][factory_manager] Invalid file 1\n"); /* Error message */
-			return -1;
-		}
+		return 0;
 	}
-	return 0;
+	else{
+		printf("[ERROR][factory_manager] Invalid file\n");
+		return -1;		
+	}
    }
 
 /* This class receives a path to a file as input parameter.
@@ -82,8 +82,6 @@ int main (int argc, const char * argv[] ){
 	
 	struct stat *statbuf;    /* Structure to know if the input file is a regular file */
 	int fd,n,size;           /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
-	
-    char *buf;               /* buf -> buffer; the size of buffer is the one of the file */
 
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
@@ -115,14 +113,21 @@ int main (int argc, const char * argv[] ){
 		exit(-1);
 		}
 		
-		buf = malloc(size);
 		
-		if((n=read(fd,buf,size))<0) {
+		char buf[size];                                     /* buf -> buffer; the size of buffer is the one of the file */
+		
+		if ((n=lseek(fd,0,SEEK_SET))<0){                    /* Set the pointer to the beginning of the file */
+			
+		printf("[ERROR][factory_manager] Invalid file\n");  /* Error message */
+		exit(-1);
+		}
+		
+		if(read(fd,buf,size)<0) {
 			
 			printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
 			exit(-1);
 		}
-		
+ 
 		/* Close the file */
 		if (close(fd)<0){
 		
@@ -131,8 +136,6 @@ int main (int argc, const char * argv[] ){
 		}
 		
 		parser(buf, size);
-		
-		free(buf);
 		
 	}
 	else {
