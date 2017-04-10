@@ -32,8 +32,12 @@ int check_number(char *argv){
 																if((argv[i]>47) && (argv[i]<58)) {       /* The char is a number */
 																								i++;                              /* Next position */
 																}
+																else if(argv[i] == 10){
+																	printf("New line\n" );
+																	return -1;
+																}
 																else{
-																								printf("Not a number %s\n",argv);                    /* The char is other type*/
+																								printf("%i Not a number %s\n",i,argv);                    /* The char is other type*/
 																								return -1;                        /* Skip the loop */
 																}
 								}
@@ -54,7 +58,7 @@ int check_number(char *argv){
  								{
 
  																pch = strtok (NULL, " ");
- 																if(pch != NULL && strcmp(pch,"\n") != 0){
+ 																if(pch != NULL){
  																	sizeArr++;
  																printf("%i\n",sizeArr);
  																printf("%s in iteration %i\n",pch, sizeArr);
@@ -87,19 +91,22 @@ int parser (int *arr,int size,char *buf){
 								{
 																if(check_number(pch) == 0 ) {
 																								if((size-1) != i) {
+																																printf("%i\n",i);
 																																sscanf (pch, "%d", &var);
 																																arr[i++] = var;
 																																pch = strtok (NULL, " ");
-																																printf("%i\n",i );
+
 																								}
 																								if((size-1) == i) {
-																									printf("%i\n",i );
+																															printf("Segundo %s\n", pch);
+																															int len = strlen(pch);
+																															printf("%i\n",len );
 																																sscanf (pch, "%d", &var);
 																																arr[size-1] = var;
 																																pch = strtok (NULL, " ");
-																																printf("%i\n",i );
+																																//printf("%i\n",i );
+																																i++;
 																								}
-																								//i++;
 
 																}
 																else return -1;
@@ -117,6 +124,7 @@ int main (int argc, const char * argv[] ){
 								int fd,n,sizeFile,size;    /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
 								int * arr; //It will contains the values of the file as integers
 								char buf[BUFFER_SIZE];           /* buf -> buffer; the size of buffer is the one of the file */
+
 
 								/* argv[0] --> name of the program
 								   argv[1] --> name of the input file
@@ -162,7 +170,7 @@ int main (int argc, const char * argv[] ){
 																}
 
 																if(parser(arr, size, buf) < 0) {
-																								perror("[ERROR][factory_manager] Invalid file stat\n"); /* Error message */
+																								perror("[ERROR][factory_manager] Invalid file parser\n"); /* Error message */
 																								exit(-1);
 																}
 																for(int i = 0; i < size; i++) {
