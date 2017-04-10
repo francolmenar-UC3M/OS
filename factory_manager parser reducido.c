@@ -29,50 +29,80 @@ int check_number(char *argv){
 								int num_processes;
 								/* The loop returns 0 if structure -/+<number>; else, returns -1 */
 								while(i<len) {
-																if((argv[i]>47) && (argv[i]<58)) {        /* The char is a number */
+																if((argv[i]>47) && (argv[i]<58)) {       /* The char is a number */
 																								i++;                              /* Next position */
 																}
-																else{                                     /* The char is other type*/
+																else{
+																								printf("Not a number %s\n",argv);                    /* The char is other type*/
 																								return -1;                        /* Skip the loop */
 																}
 								}
 								return 0;
 }
 
-int parser (char *buf, int size){
+/*
+   It calculates the number of integers in an string divided by spaces
+   Return the number of integers
+ */
+int calculateSize (char *buf){
 								char * pch;
-								int *arr;
+
 								int sizeArr = 0;//The size of the in array
 								pch = strtok (buf," ");
-								printf("Primer while\n");
+								printf("%s in iteration %i\n",pch, sizeArr);
 								while (pch != NULL) //I calculate the size of the array
 								{
-																//printf ("%s\n",pch);
-																pch = strtok (NULL, " ");
-																sizeArr++;
-								}
-								//arr[sizeArr];
-								printf("%i\n", sizeArr);
-								arr = malloc(sizeof(int)*(sizeArr-1));
-								pch = strtok (buf," ");
-								sizeArr=0;
-								printf("Segundo while\n");
-								while (pch != NULL) //I calculate the size of the array
-								{
-																//printf ("%s\n",pch);
-																pch = strtok (NULL, " ");
-																printf("dentro\n");
-																if(check_number(pch)==0){
-																	printf("La liamos\n");
-																	arr[sizeArr] = atoi(pch);
-																}
-																else return -1;
-																sizeArr++;
-								}
 
+																pch = strtok (NULL, " ");
+																if(strcmp(pch,"\n") != 0){
+																	sizeArr++;
+																printf("%s in iteration %i\n",pch, sizeArr);
+															}
+								}
+								return sizeArr;
+}
+
+/*
+   It reads the file and returns 0 if it is no problem
+   Otherwise it returns 1
+ */
+int readFile(int fd, char *buf, int sizeFile){
+								lseek(fd,0,SEEK_SET);//I set
+								int n;
+								if ((n=read(fd,buf,sizeFile))<0) { //Read the input file given the size of the file
+																perror("[ERROR][factory_manager] Invalid file read\n"); // Error message
+																return -1;
+								}
 								return 0;
 }
 
+
+int parser (int *arr,int size,char *buf){
+								char * pch;
+								int i = 0,var;
+								pch = strtok (buf," ");
+								while (pch != NULL) //I calculate the size of the array
+								{
+																if(check_number(pch) == 0 ) {
+																								if((size-1) != i) {
+																																sscanf (pch, "%d", &var);
+																																arr[i++] = var;
+																																pch = strtok (NULL, " ");
+																																printf("%i\n",i );
+																								}
+																								if((size-1) == i) {
+																																sscanf (pch, "%d", &var);
+																																arr[size-1] = var;
+																																pch = strtok (NULL, " ");
+																																printf("%i\n",i );
+																								}
+																								//i++;
+
+																}
+																else return -1;
+								}
+								return 0;
+}
 
 
 /* This class receives a path to a file as input parameter.
@@ -81,8 +111,8 @@ int parser (char *buf, int size){
 int main (int argc, const char * argv[] ){
 
 								struct stat *statbuf; /* Structure to know if the input file is a regular file */
-								int fd,n,size;    /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
-
+								int fd,n,sizeFile,size;    /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
+								int * arr; //It will contains the values of the file as integers
 								char buf[BUFFER_SIZE];           /* buf -> buffer; the size of buffer is the one of the file */
 
 								/* argv[0] --> name of the program
@@ -109,22 +139,32 @@ int main (int argc, const char * argv[] ){
 																								exit(-1);
 																}
 
-																if ((size=lseek(fd,0,SEEK_END))<0) {   //Get the size of the file
+																if ((sizeFile=lseek(fd,0,SEEK_END))<0) {   //Get the size of the file
 
 																								perror("[ERROR][factory_manager] Invalid file\n");  //Error message
 																								exit(-1);
 																}
-																buf[size] = 0;
-																lseek(fd,0,SEEK_SET);
 
-																if ((n=read(fd,buf,size))<0) { //Read the input file given the size of the file
-
-																								perror("[ERROR][factory_manager] Invalid file read\n"); // Error message
+																buf[sizeFile] = 0;//I put the end of the file in the buffer
+																if(readFile(fd,buf,sizeFile) < 0) {
 																								exit(-1);
 																}
-																printf("Entramos\n");
-																parser(buf,size);
-																printf("Salimos\n");
+
+																size = calculateSize(buf);
+																printf("%i\n",size );
+																arr = malloc(sizeof(int)*(size));
+
+																if(readFile(fd,buf,sizeFile) < 0) {
+																								exit(-1);
+																}
+
+																if(parser(arr, size, buf) < 0) {
+																								perror("[ERROR][factory_manager] Invalid file stat\n"); /* Error message */
+																								exit(-1);
+																}
+																for(int i = 0; i < size; i++) {
+																								printf("Pos %i = %i\n",i,arr[i] );
+																}
 
 																/* Check for errors when reading input file */
 																if (n<0) {
@@ -148,7 +188,7 @@ int main (int argc, const char * argv[] ){
 																printf("[ERROR][factory_manager] Invalid file else\n");
 																exit(-1);
 								}
-
+								free(arr);
 								return 0;
 
 }
