@@ -54,11 +54,13 @@ int calculateSize (char *buf){
 								{
 
 																pch = strtok (NULL, " ");
-																if(strcmp(pch,"\n") != 0){
+																//if(strcmp(pch,"\n") != 0){
 																	sizeArr++;
+																printf("%i\n",sizeArr);
 																printf("%s in iteration %i\n",pch, sizeArr);
-															}
+															//}
 								}
+								printf("Bye\n");
 								return sizeArr;
 }
 
@@ -91,6 +93,7 @@ int parser (int *arr,int size,char *buf){
 																																printf("%i\n",i );
 																								}
 																								if((size-1) == i) {
+																									printf("%i\n",i );
 																																sscanf (pch, "%d", &var);
 																																arr[size-1] = var;
 																																pch = strtok (NULL, " ");
