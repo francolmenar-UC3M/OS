@@ -31,6 +31,7 @@ int main (int argc, const char * argv[] ){
 	
 	struct stat *statbuf;    /* Structure to know if the input file is a regular file */
 	int fd,n,size;           /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
+	int num_rows;            /* Number of processes created by factory_manager, whose parameters are stored in rows */
 
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
@@ -117,12 +118,13 @@ int main (int argc, const char * argv[] ){
 			i++;
 		}
 		
+		int param[atoi(aux)][4];  /* Declare the resulting matrix as we know its number of rows */
+		
 		/* First thing to do is to check if the number of processes parsed are different from 0.
 		aux can only be a string of digits from 0 to 9. Therefore, atoi only returns 0 if the actual value is 0, not for any error */
 		if (atoi(aux)!=0){
 			/* We declare the auxiliary variables that will be used from now */
-			int num_rows = atoi(aux); /* aux will be used for other purposes, so we store the number of rows of the matrix */
-			int param[atoi(aux)][3];  /* Declare the resulting matrix as we know its number of rows */
+			num_rows = atoi(aux); /* aux will be used for other purposes, so we store the number of rows of the matrix */
 			
 			/* j and k are used for indicating the current position of row (j) and colum (k) */
 			int j = 0;
@@ -150,11 +152,17 @@ int main (int argc, const char * argv[] ){
 						strcat(aux,aux2);
 						i++;
 					}
+						/* In the case we are in the first column of the the row, we assign it the number of the column.
+						This will be the ID of the process, the only parameter not stated in the input file */
+						if (k == 0){
+							param[j][k] = j;
+							k++;
+						}
 						/* Now we have the number, we store it in the corresponding position of the resulting matrix param.
 						We use atoi again, as it should return 0 only if the number is a 0 -only digits permitted- */
 						param[j][k] = atoi(aux);
-						/* In the case we have reached the last column (k==2), we update k to 0 and j to j+1 (next row) */
-						if (k == 2){
+						/* In the case we have reached the last column (k==3), we update k to 0 and j to j+1 (next row) */
+						if (k == 3){
 							k = 0;
 							j++;
 						}
@@ -193,6 +201,12 @@ int main (int argc, const char * argv[] ){
 	else{
 		printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
 			exit(-1);
+	}
+	/* SYNCHRONIZATION PART */
+	/* Incomplete */
+	int i;
+	for (i = 0; i<num_rows; i++){
+		extern int process_manager(int* param[i]);
 	}
 
 	return 0;
