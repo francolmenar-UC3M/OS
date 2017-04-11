@@ -3,7 +3,7 @@
  * factory_manager.c
  *
  */
-/* Parser works now perfectly and the result is stored into a matrix*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,68 +20,6 @@ int check_number(char argv){
 	}
 	return -1;
 }
-
-int parser (char* buf, int size){
-	
-	int i = 0;
-	char aux[size];
-	
-	aux[0] = '\0';
-	char aux2[2];
-	aux2[1] = '\0';
-	
-	while(check_number(buf[i])==0){
-		aux2[0]=buf[i];
-		strcat(aux,aux2);
-		i++;
-	}
-	
-	if (atoi(aux)!=0){
-		int param[atoi(aux)][3];
-	
-		int j = 0;
-		int k = 0;
-	
-		while (i<size){
-			if (check_number(buf[i])==0){
-				memset(aux,0,sizeof aux);
-				while(check_number(buf[i])==0){
-					aux2[0]=buf[i];
-					strcat(aux,aux2);
-					i++;
-				}
-				param[j][k] = atoi(aux);
-				if (k = 2){
-					k = 0;
-					j++;
-				}
-				else{
-					k++;
-				}
-			}
-			else if (buf[i]==32){
-				i++;
-			}
-			else{
-				printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
-				return -1;
-			}
-		}
-			/* Segmentation fault
-																for(j = 0; j < size; j++){
-																	for(k = 0; k < 3; k++){
-																		printf("%i\t",param[j][k]);
-																	}
-																	printf("\n");
-																}
-																*/
-		return 0;
-	}
-	else{
-		printf("[ERROR][factory_manager] Invalid file\n");
-		return -1;		
-	}
-   }
 
 /* This class receives a path to a file as input parameter.
 Returns 0 if correct execution, else, returns -1.
@@ -143,13 +81,74 @@ int main (int argc, const char * argv[] ){
 		exit(-1);
 		}
 		
-		parser(buf, size);
+		int i = 0;
+		char aux[size];
+	
+		aux[0] = '\0';
+		char aux2[2];
+		aux2[1] = '\0';
+	
+		while(check_number(buf[i])==0){
+			aux2[0]=buf[i];
+			strcat(aux,aux2);
+			i++;
+		}
+	
+		if (atoi(aux)!=0){
+			int num_rows = atoi(aux);
+			int param[atoi(aux)][3];
+	
+			int j = 0;
+			int k = 0;
+	
+			while (i<size){
+				if (check_number(buf[i])==0){
+					if (j == num_rows){
+					printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
+					exit(-1);
+					}
+					else{
+					memset(aux,0,sizeof aux);
+				
+					while(check_number(buf[i])==0){
+						aux2[0]=buf[i];
+						strcat(aux,aux2);
+						i++;
+					}
+						param[j][k] = atoi(aux);
+						if (k == 2){
+							k = 0;
+							j++;
+						}
+						else{
+							k++;
+						}	
+					}
+				}
+				else if (buf[i]==32){
+					i++;
+				}
+				else{
+					printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
+					exit(-1);
+				}
+			}
 		
-	}
-	else {
-		printf("[ERROR][factory_manager] Invalid file\n");
-		exit(-1);
-	}
+			if(k!=0){
+				printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
+				exit(-1);
+			}
+		}
+		else{
+			printf("[ERROR][factory_manager] Invalid file\n");
+			exit(-1);		
+		}
+		
+		}
+		else {
+			printf("[ERROR][factory_manager] Invalid file\n");
+			exit(-1);
+		}
 
 	return 0;
 }
