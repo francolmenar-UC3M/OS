@@ -196,28 +196,17 @@ int main (int argc, const char * argv[] ){
 			printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
 			exit(-1);		
 		}
-		int j;
-		int k;
+		/* PARSER ENDS */
+		/* SYNCHRONIZATION STARTS */
 	
-		for (j = 0; j < num_rows; j++){
- 			for (k = 0; k < 4; k++){
- 				printf("%i\t",param[j][k]);
- 			}
- 			printf("\n");
- 		}
+		for (i = 0; i<num_rows; i++){
+			extern int process_manager(int* param[i]);
+		}
+	return 0;
 	}
 	/* The input file is not a regular file --> invalid file */
 	else{
 		printf("[ERROR][factory_manager] Invalid file\n"); /* Error message */
 			exit(-1);
 	}
-	
-	/* SYNCHRONIZATION PART */
-	
-	int i;
-	for (i = 0; i<num_rows; i++){
-		extern int process_manager(int* param[i]);
-	}
-
-	return 0;
 }
