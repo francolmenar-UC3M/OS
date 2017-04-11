@@ -67,6 +67,14 @@ int parser (char* buf, int size){
 				return -1;
 			}
 		}
+			/* Segmentation fault
+																for(j = 0; j < size; j++){
+																	for(k = 0; k < 3; k++){
+																		printf("%i\t",param[j][k]);
+																	}
+																	printf("\n");
+																}
+																*/
 		return 0;
 	}
 	else{
