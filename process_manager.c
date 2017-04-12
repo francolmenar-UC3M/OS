@@ -29,6 +29,9 @@ void *PrintHello(void *threadid)
 
 int main (int argc, const char * argv[] ){
   printf("Its process_manager\n");
+  for (int i = 1; i < argc;i++){
+    printf("Argument %i:%s\n",i,argv[i]);
+  }
 	return 0;
 
 }
