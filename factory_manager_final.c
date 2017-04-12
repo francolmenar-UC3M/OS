@@ -33,6 +33,7 @@ int main (int argc, const char * argv[] ){
 	int fd,n,size;           /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
 	int num_rows;            /* Number of processes created by factory_manager, whose parameters are stored in rows */
 	int status, pid;         /* Variables needed when working with fork() */
+	sem_t* name;             /* Declare the semaphore we're going to use */
 
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
@@ -197,6 +198,13 @@ int main (int argc, const char * argv[] ){
 		char *aux_acc[5];         /* It will be the arguments passed to the process_manager */ 
 		aux_acc[0] = "./process"; /* It is the name of the executable of the process */
 		aux_acc[4] = NULL;        /* The end of the string variable */
+		int n_processes = 0;      /* Number of processes created */
+		
+		/* Open a semaphore for managing the creation of processes. */
+		if((name=sem_open("/sem",O_CREAT,S_IRUSR | S_IWUSR,0))==SEM_FAILED){
+			printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[0][0]); /* Error message*/                        				  /* Error message */
+			return -1;
+		}
 		
 		for (i = 0; i<j; i++){       /* It goes for each process_manager to be created */
 			for(k = 0; k < 3; k++){  /* It goes through all the variables of a given process_manager */
@@ -232,10 +240,27 @@ int main (int argc, const char * argv[] ){
 				
 				case 0: /* Child process, the one which executes process_manager */
 				printf("[OK][factory_manager] Process_manager with id %i has been created.\n",param[i][0]);
-				if(execvp(aux_acc[0],aux_acc)<0) {  /* Execute process_manager */
-				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
-				return -1;
+				
+				n_processes = n_processes + 1;
+				
+				while(n_processes != j){
+					
+					if(sem_wait(name)<0){
+					printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
+					return -1;
+					}
+					
+					if(execvp(aux_acc[0],aux_acc)<0) {  /* Execute process_manager */
+					printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
+					return -1;
+					}
+				
+					if(sem_post(name)<0){
+					printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
+					return -1;
+					}
 				}
+				
 				default: /* The parent waits until the children has ended */
 					while (wait(&status) != pid) {
 						/* Check for possible errors */
@@ -247,6 +272,14 @@ int main (int argc, const char * argv[] ){
 					printf("[OK][factory_manager] Process_manager with id %i has finished.\n",param[i][0]);
 			}
 		}
+			if(sem_close(name)<0){
+				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
+				return -1;
+			}
+			if(sem_unlink("/sem")<0){
+				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
+				return -1;
+			}
 			printf("[OK][factory_manager] Finishing.\n");
 			return 0;
 	}
