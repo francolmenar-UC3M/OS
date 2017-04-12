@@ -34,7 +34,7 @@ int main (int argc, const char * argv[] ){
 
 	struct stat *statbuf;    /* Structure to know if the input file is a regular file */
 	int fd,n,size;           /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
-	int status,pid, num_rows;            /* Number of processes created by factory_manager, whose parameters are stored in rows */
+	int status,pid, num_rows,j;            /* Number of processes created by factory_manager, whose parameters are stored in rows */
 
 
 	/* argv[0] --> name of the program
@@ -131,7 +131,7 @@ int main (int argc, const char * argv[] ){
 			num_rows = atoi(aux); /* aux will be used for other purposes, so we store the number of rows of the matrix */
 
 			/* j and k are used for indicating the current position of row (j) and colum (k) */
-			int j = 0;
+			j = 0;
 			int k = 0;
 
 			/* Go over all the content of the buffer, using the counter i -up to size, the length of buf- */
@@ -207,7 +207,7 @@ int main (int argc, const char * argv[] ){
 		aux_acc[0] = "./process"; //It is the name of the executable of the process
 		aux_acc[5] = NULL; //The end of the string variable
 		int k;
-		for (i = 0; i<num_rows; i++){ //It goes for each process_manager to be created
+		for (i = 0; i<j; i++){ //It goes for each process_manager to be created
 				for(k = 0; k < 4; k++){ //It goes through all the variables of a given process_manager
 					int length = snprintf(NULL,0,"%d",param[i][k]); //We calculate the length of the integer
 					char * auxiliar = malloc (length +1); //We allocate the memoy for the auxiliar buffer and for
