@@ -202,30 +202,22 @@ int main (int argc, const char * argv[] ){
 		}
 		/* PARSER ENDS */
 		/* SYNCHRONIZATION STARTS */
-/*
-		int j;
-		int k;
-		printf("%i\n",size);
-		for(j = 0; j < num_rows; j++){
-			for(k = 0; k < 4; k++){
-				printf("%i\t",param[j][k] );
-			}
-			printf("\n" );
-		}
 
-		printf("%i\n",num_rows);*/
-		char *aux_acc[6];
-		aux_acc[0] = "./process";
-		aux_acc[6] = NULL;
+		char *aux_acc[6]; //It will be the arguments passed to the process_manager
+		aux_acc[0] = "./process"; //It is the name of the executable of the process
+		aux_acc[5] = NULL; //The end of the string variable
 		int k;
-		for (i = 0; i<num_rows; i++){
-				for(k = 0; k < 4; k++){
-					printf("aux_acc it: %i\n",k);
-					//sprintf(aux_acc[k+1],"%i",param[i][k]);
-					aux_acc[k+1] = "3";
-					printf("aux_acc despues %i\n",k);
+		for (i = 0; i<num_rows; i++){ //It goes for each process_manager to be created
+				for(k = 0; k < 4; k++){ //It goes through all the variables of a given process_manager
+					int length = snprintf(NULL,0,"%d",param[i][k]); //We calculate the length of the integer
+					char * auxiliar = malloc (length +1); //We allocate the memoy for the auxiliar buffer and for
+					aux_acc[k+1] = malloc (length +1); // the buffer which will be passed to the process_manager
+				  snprintf(auxiliar,length + 1,"%d",param[i][k]); //Convert the int into a string
+					strcpy(aux_acc[k+1],auxiliar); //copy the string from the auxiliary buffer to the correct one
+					//printf("%s\n", aux_acc[k+1]);
+					free(auxiliar); //Free the memory corresponding to the auxiliary buffer
 				}
- 		pid = fork();
+ 		pid = fork(); //Create the child
 		switch(pid) {
 
 			case -1:/* Error occurred */
@@ -247,10 +239,9 @@ int main (int argc, const char * argv[] ){
 							return -1;
 						}
 			}
-			printf("Childre arrived\n");
+			printf("Children arrived\n");
 		}
 	}
-
 	return 0;
 }
 /* The input file is not a regular file --> invalid file */
