@@ -213,12 +213,10 @@ int main (int argc, const char * argv[] ){
 		}
 
 		printf("%i\n",num_rows);*/
-		char **aux_acc;
-		aux_acc = malloc( 4 *sizeof( char* ));
+		char aux_acc[4][20];
 		int k;
 		printf("joder\n");
 		for (i = 0; i<num_rows; i++){
-			aux_acc[i] = malloc(4);
 				for(k = 0; k < 4; k++){
 					printf("payo %i\n",k);
 					sprintf(aux_acc[k],"%i",param[i][k]);
