@@ -119,7 +119,7 @@ int main (int argc, const char * argv[] ){
 			i++;
 		}
 		
-		int param[atoi(aux)][4];  /* Declare the resulting matrix as we know its number of rows */
+		int param[atoi(aux)][3];  /* Declare the resulting matrix as we know its number of rows */
 		
 		/* j and k are used for indicating the current position of row (j) and colum (k) */
 			int j = 0;
@@ -153,17 +153,11 @@ int main (int argc, const char * argv[] ){
 						strcat(aux,aux2);
 						i++;
 					}
-						/* In the case we are in the first column of the the row, we assign it the number of the column.
-						This will be the ID of the process, the only parameter not stated in the input file */
-						if (k == 0){
-							param[j][k] = j;
-							k++;
-						}
 						/* Now we have the number, we store it in the corresponding position of the resulting matrix param.
 						We use atoi again, as it should return 0 only if the number is a 0 -only digits permitted- */
 						param[j][k] = atoi(aux);
 						/* In the case we have reached the last column (k==3), we update k to 0 and j to j+1 (next row) */
-						if (k == 3){
+						if (k == 2){
 							k = 0;
 							j++;
 						}
@@ -200,12 +194,12 @@ int main (int argc, const char * argv[] ){
 		/* PARSER ENDS */
 		/* SYNCHRONIZATION STARTS */
 		
-		char *aux_acc[6];         /* It will be the arguments passed to the process_manager */ 
+		char *aux_acc[5];         /* It will be the arguments passed to the process_manager */ 
 		aux_acc[0] = "./process"; /* It is the name of the executable of the process */
-		aux_acc[5] = NULL;        /* The end of the string variable */
+		aux_acc[4] = NULL;        /* The end of the string variable */
 		
 		for (i = 0; i<j; i++){       /* It goes for each process_manager to be created */
-			for(k = 0; k < 4; k++){  /* It goes through all the variables of a given process_manager */
+			for(k = 0; k < 3; k++){  /* It goes through all the variables of a given process_manager */
 				int length;
 				if ((length=snprintf(NULL,0,"%d",param[i][k]))<0){ /* We calculate the length of the integer */
 					printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]);
