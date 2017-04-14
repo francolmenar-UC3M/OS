@@ -255,28 +255,30 @@ int main (int argc, const char * argv[] ){
 				free(param[i][4]);
 				
 				default: /* The parent waits until the children has ended */
-				sem_post(sem_factory);
-					while (wait(&status) != pid) {
-						/* Check for possible errors */
-						if (status != 0) {
-							printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
-							return -1;
-						}
+				
+				while (wait(&status) != pid) {
+					/* Check for possible errors */
+					printf("%i\n",status);
+					if (status != 0) {
+						printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
+						return -1;
 					}
-					printf("[OK][factory_manager] Process_manager with id %s has finished.\n",param[i][1]); /* Error message */
+				}
+				printf("[OK][factory_manager] Process_manager with id %s has finished.\n",param[i][1]);
 			}
 		}
+		
 			printf("[OK][factory_manager] Finishing.\n");	
 			
 			/* Close the semaphore we have used to synchronize the processes. If the result is negative --> error */
 			if(sem_close(sem_factory)<0){
- 			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors sem.\n", param[i][1]); /* Error message*/                        
+ 			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/                        
                return -1;
 			
 			}	
 			/* Remove the named semaphore referred by semName (free resources). If the result is negative --> error */
   			if(sem_unlink(semName)<0){
- 				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors sem1.\n", param[i][1]); /* Error message*/   
+ 				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
 				return -1;
   			}
 			return 0;			
