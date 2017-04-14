@@ -202,11 +202,14 @@ int main (int argc, const char * argv[] ){
 		char* semName = "/sem";
 		/* Open a semaphore for managing the creation of processes. */
 		
-		if((sem_factory =sem_open(semName,O_CREAT,0666,0))==SEM_FAILED){
+		if((sem_factory =sem_open(semName,O_CREAT,0644,0))==SEM_FAILED){
 			printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[0][0]); // Error message
   			return -1;
 		}
-		
+		if(sem_close(sem_factory)<0){
+ 				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors sem.\n", param[i][0]); /* Error message*/                        
+                return -1;
+  		}		
 		for (i = 0; i<j; i++){       /* It goes for each process_manager to be created */
 			for(k = 0; k < 4; k++){  /* It goes through all the variables of a given process_manager */
 			
@@ -281,6 +284,7 @@ int main (int argc, const char * argv[] ){
 					printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        				  /* Error message */
 					return -1;
 				}
+				//sem_wait(sem_factory);
 				
 				default: /* The parent waits until the children has ended */
 					while (wait(&status) != pid) {
@@ -293,11 +297,7 @@ int main (int argc, const char * argv[] ){
 					printf("[OK][factory_manager] Process_manager with id %i has finished.\n",param[i][0]);
 			}
 		}
-			printf("[OK][factory_manager] Finishing.\n");
-			if(sem_close(sem_factory)<0){
- 				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors sem.\n", param[i][0]); /* Error message*/                        
-                return -1;
-  			}
+			printf("[OK][factory_manager] Finishing.\n");			
   			if(sem_unlink(semName)<0){
  				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors sem1.\n", param[i][0]); /* Error message*/   
 				return -1;
