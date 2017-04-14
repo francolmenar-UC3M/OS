@@ -33,7 +33,7 @@ int main (int argc, const char * argv[] ){
 	int fd,n,size;           /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
 	int num_rows;            /* Number of processes created by factory_manager, whose parameters are stored in rows */
 	int status, pid;         /* Variables needed when working with fork() */
-	sem_t* sem;              /* Name of the semaphore to coordinate all the processes from factory_manager */
+	sem_t* sem_factory;              /* Name of the semaphore to coordinate all the processes from factory_manager */
 
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
@@ -202,7 +202,7 @@ int main (int argc, const char * argv[] ){
 		char* semName = "/sem";
 		/* Open a semaphore for managing the creation of processes. */
 		
-		if((sem_open(semName,O_CREAT,0666,0))==SEM_FAILED){
+		if((sem_factory =sem_open(semName,O_CREAT,0666,0))==SEM_FAILED){
 			printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[0][0]); // Error message
   			return -1;
 		}
@@ -294,12 +294,12 @@ int main (int argc, const char * argv[] ){
 			}
 		}
 			printf("[OK][factory_manager] Finishing.\n");
-			if(sem_close(sem)<0){
- 				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/                        
+			if(sem_close(sem_factory)<0){
+ 				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors sem.\n", param[i][0]); /* Error message*/                        
                 return -1;
   			}
   			if(sem_unlink(semName)<0){
- 				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[i][0]); /* Error message*/   
+ 				printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors sem1.\n", param[i][0]); /* Error message*/   
 				return -1;
   			}
 			return 0;			
