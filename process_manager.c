@@ -32,7 +32,12 @@ int main (int argc, const char * argv[] ){
   if((sem_process) == SEM_FAILED){
 	  printf("Error");
 	  return -1;
-  }/*  LOOP INFINITO
+  }
+   if (sem_wait(sem_process) < 0) {
+            perror("sem_wait(3) failed on child");
+        }
+		printf("llego");
+  /*  LOOP INFINITO
   int i;
     for (i = 0; i < 10; i++) {
         if (sem_wait(sem_process) < 0) {
