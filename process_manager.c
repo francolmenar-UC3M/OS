@@ -27,34 +27,19 @@ void *PrintHello(void *threadid){
 
 
 int main (int argc, const char * argv[] ){
-  printf("Its process_manager\n");
+	if(argc!=5){
+		perror("[ERROR][process_manager] Arguments not valid.\n");
+		return -1;
+	}
   sem_t *sem_process = sem_open(argv[2], O_RDWR);
   if((sem_process) == SEM_FAILED){
-	  printf("Error");
+	  printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]);
 	  return -1;
   }
+  printf("[OK][process_manager] Process_manager with id: %s waiting to produce %s elements.\n",argv[1],argv[4]);
    if (sem_wait(sem_process) < 0) {
             perror("sem_wait(3) failed on child");
+			return -1;
         }
-		printf("llego");
-  /*  LOOP INFINITO
-  int i;
-    for (i = 0; i < 10; i++) {
-        if (sem_wait(sem_process) < 0) {
-            perror("sem_wait(3) failed on child");
-            continue;
-        }
-
-        printf("PID %ld acquired semaphore\n", (long) getpid());
-
-        if (sem_post(sem_process) < 0) {
-            perror("sem_post(3) error on child");
-        }
-
-        sleep(1);
-    }
-  if (sem_close(sem_process) < 0)
-        perror("sem_close(3) failed");
-*/
     return 0;
 }
