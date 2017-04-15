@@ -33,7 +33,6 @@ int main (int argc, const char * argv[] ){
 	int fd,n,size;           /* fd -> file descriptor; n -> number of bytes read from the file; size -> size of the file */
 	int num_rows;            /* Max number of processes created by factory_manager, whose parameters are stored in rows */
 	int status, pid;         /* Variables needed when working with fork() */
-	sem_t* sem_factory;      /* Name of the semaphore to coordinate all the processes from factory_manager */
 
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
@@ -131,11 +130,6 @@ int main (int argc, const char * argv[] ){
 		/* semName stores the name of the named semaphore we use for synchronizing processes */
 		char* semName = "/sem";
 		
-		/* Open a semaphore for managing the creation of processes. */
-		if((sem_factory =sem_open(semName,O_CREAT,0644,0))==SEM_FAILED){
-			printf("[ERROR][factory_manager] Process_manager with id %i has finished with errors.\n", param[0][0]);  /* Error message */
-  			return -1;
-		}
 		
 		/* First thing to do is to check if the number of processes parsed are different from 0.
 		aux can only be a string of digits from 0 to 9. Therefore, atoi only returns 0 if the actual value is 0, not for any error */
@@ -165,8 +159,12 @@ int main (int argc, const char * argv[] ){
 						k++;
 					}
 					
-					else if(k==2){
-						param[j][k] = semName;
+					else if(k==2){ /* Concatenation of sem and the id process */
+						char str[80];
+						strcpy(str, semName);
+						strcat(str,param[j][1]);
+						param[j][k] = malloc(80*sizeof(char));
+						strcpy(param[j][k],str);
 						k++;
 					}
 					
@@ -233,9 +231,14 @@ int main (int argc, const char * argv[] ){
 		2 --> semName (name of the semaphore)
 		3 --> max element in belt (2nd parameter of input file)
 		4 --> elements to be produced (3rd parameter of input file) */
+		sem_t* sem_factory[j];      /* Name of the semaphore to coordinate all the processes from factory_manager */
 				
 		for (i = 0; i<j; i++){       /* It goes through each process_manager to be created */
-			
+			/* Open a semaphore for managing the creation of processes. */
+			if((sem_factory[i] =sem_open(param[i][2],O_CREAT,0644,0))==SEM_FAILED){
+			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[0][0]);  /* Error message */
+  			return -1;
+		}
 			pid = fork(); /* Create the child*/
 			switch(pid){
 				
@@ -254,33 +257,44 @@ int main (int argc, const char * argv[] ){
 				free(param[i][3]);
 				free(param[i][4]);
 				
-				default: /* The parent waits until the children has ended */
-				
-				while (wait(&status) != pid) {
-					/* Check for possible errors */
+				//default: 
+				/* The parent waits until the children has ended */
+				/*while (wait(&status) != pid) {
+					 //Check for possible errors 
 					printf("%i\n",status);
 					if (status != 0) {
-						printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
+						printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); //Error message 
 						return -1;
 					}
 				}
-				printf("[OK][factory_manager] Process_manager with id %s has finished.\n",param[i][1]);
+				*/
 			}
 		}
-		
-			printf("[OK][factory_manager] Finishing.\n");	
 			
-			/* Close the semaphore we have used to synchronize the processes. If the result is negative --> error */
-			if(sem_close(sem_factory)<0){
- 			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/                        
-               return -1;
-			
-			}	
-			/* Remove the named semaphore referred by semName (free resources). If the result is negative --> error */
-  			if(sem_unlink(semName)<0){
- 				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
-				return -1;
-  			}
+			for(i = 0; i < j; i++){
+				if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
+					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
+					return -1;
+				}
+				sem_post(sem_factory[i]); // I post the semaphore
+				if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
+					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
+					return -1;
+				}
+				printf("[OK][factory_manager] Process_manager with id %s has finished.\n",param[i][1]);
+				/* Close the semaphore we have used to synchronize the processes. If the result is negative --> error */
+				if(sem_close(sem_factory[i])<0){
+				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/                        
+				   return -1;
+				
+				}	
+				/* Remove the named semaphore referred by semName (free resources). If the result is negative --> error */
+				if(sem_unlink(param[i][2])<0){
+					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
+					return -1;
+				}
+			}
+				printf("[OK][factory_manager] Finishing.\n");	
 			return 0;			
 	}	
 	/* The input file is not a regular file --> invalid file */
