@@ -288,28 +288,8 @@ int main (int argc, const char * argv[] ){
 				*/
 			}
 		}
-		printf("Bomboneo\n");
-		for(i = 0; i < j; i++){
-			if(sem_post(sem_factory[i]) < 0){
-				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
-				return -1;
-			}
-			if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
-					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
-					return -1;
-				}
-		}
-			printf("Bomboneo1\n");
+			printf("Ultimo for\n");
 			for(i = 0; i < j; i++){
-				/*if (sem_wait(sem_factory[i])<0) { 
-				//I wait that the process has finished
-					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); 
-					return -1;
-				}*/
-				if(sem_post(sem_factory[i]) < 0){ //Post the semaphore
-					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
-					return -1;
-				}
 				if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
 					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
 					return -1;
