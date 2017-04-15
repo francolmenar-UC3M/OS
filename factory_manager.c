@@ -224,6 +224,12 @@ int main (int argc, const char * argv[] ){
 		/* PARSER ENDS */
 		
 		/* SYNCHRONIZATION STARTS */
+		/* semaphore for synchronize the process creation */
+		sem_t* boss;
+		if((boss =sem_open("/boss",O_CREAT,0644,0))==SEM_FAILED){
+			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[0][0]);  /* Error message */
+  			return -1;
+		}
 		
 		/* Now, we create each of the requested processes in order, passing the following parameters:
 		0 --> ./process (name of the program)
@@ -247,17 +253,29 @@ int main (int argc, const char * argv[] ){
 				return -1;
 				
 				case 0: /* Child process, the one which executes process_manager */
+				
+				if (sem_wait(sem_factory[i])<0) {
+				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
+					return -1;
+				}
+				printf("Wait %i\n", i);
 				printf("[OK][factory_manager] Process_manager with id %s has been created.\n",param[i][1]);
+				if(sem_post(boss) < 0){
+					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
+				return -1;
+				}
 				if(execvp(param[i][0],param[i])<0) {  /* Execute process_manager with the parameters of param */
 					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/                        				  /* Error message */
 					return -1;
 				}
 				/* Free the memory for the parameters stated in the input file, as they are the ones who used malloc */
-				free(param[i][1]);
-				free(param[i][3]);
-				free(param[i][4]);
 				
-				//default: 
+				
+				default: 
+				sem_post(sem_factory[i]);
+				printf("Post %i\n", i);
+				sem_wait(boss);
+				
 				/* The parent waits until the children has ended */
 				/*while (wait(&status) != pid) {
 					 //Check for possible errors 
@@ -270,13 +288,28 @@ int main (int argc, const char * argv[] ){
 				*/
 			}
 		}
-			
-			for(i = 0; i < j; i++){
-				if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
+		printf("Bomboneo\n");
+		for(i = 0; i < j; i++){
+			if(sem_post(sem_factory[i]) < 0){
+				printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
+				return -1;
+			}
+			if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
 					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
 					return -1;
 				}
-				sem_post(sem_factory[i]); // I post the semaphore
+		}
+			printf("Bomboneo1\n");
+			for(i = 0; i < j; i++){
+				/*if (sem_wait(sem_factory[i])<0) { 
+				//I wait that the process has finished
+					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); 
+					return -1;
+				}*/
+				if(sem_post(sem_factory[i]) < 0){ //Post the semaphore
+					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
+					return -1;
+				}
 				if (sem_wait(sem_factory[i])<0) { //I wait that the process has finished
 					printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/   
 					return -1;
@@ -294,7 +327,7 @@ int main (int argc, const char * argv[] ){
 					return -1;
 				}
 			}
-				printf("[OK][factory_manager] Finishing.\n");	
+			printf("[OK][factory_manager] Finishing.\n");	
 			return 0;			
 	}	
 	/* The input file is not a regular file --> invalid file */
