@@ -226,7 +226,7 @@ int main (int argc, const char * argv[] ){
 		/* SYNCHRONIZATION STARTS */
 		/* semaphore for synchronize the process creation */
 		sem_t* boss;
-		if((boss =sem_open("/boss",O_CREAT,0644,0))==SEM_FAILED){
+		if((boss =sem_open("/boss",O_CREAT,0644,1))==SEM_FAILED){
 			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[0][0]);  /* Error message */
   			return -1;
 		}
@@ -272,9 +272,11 @@ int main (int argc, const char * argv[] ){
 				
 				
 				default: 
-				sem_post(sem_factory[i]);
-				printf("Post %i\n", i);
 				sem_wait(boss);
+				printf("Post %i\n", i);
+				sem_post(sem_factory[i]);
+				
+				
 				
 				/* The parent waits until the children has ended */
 				/*while (wait(&status) != pid) {
