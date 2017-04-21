@@ -230,12 +230,7 @@ int main (int argc, const char * argv[] ){
 
 																/* SYNCHRONIZATION STARTS */
 
-																sem_t* boss;
-																if((boss =sem_open("/boss",O_CREAT,0644,1))==SEM_FAILED) {
-																								printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[0][0]); /* Error message */
-																								return -1;
-																}
-
+															
 																/* Now, we create each of the requested processes in order, passing the following parameters:
 																   0 --> ./process (name of the program)
 																   1 --> ID of the process (1st parameter of input file)
@@ -265,10 +260,6 @@ int main (int argc, const char * argv[] ){
 																																								return -1;
 																																}
 																																printf("[OK][factory_manager] Process_manager with id %s has been created.\n",param[i][1]);
-																																if(sem_post(boss) < 0) {
-																																								printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
-																																								return -1;
-																																}
 																																if(execvp(param[i][0],param[i])<0) { /* Execute process_manager with the parameters of param */
 																																								printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message*/                              /* Error message */
 																																								return -1;
@@ -278,18 +269,9 @@ int main (int argc, const char * argv[] ){
 
 																								default:
 																																pids[i] = pid;
-																																sem_wait(boss);
 																																sem_post(sem_factory[i]);
 																								}
 																}
-																sleep(1);
-																for(i = 0; i < j; i++) {
-																								if(sem_post(sem_factory[i]) < 0) {
-																																printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
-																																return -1;
-																								}
-																}
-																sleep(1);
 																for(i = 0; i < j; i++) {
 																								if(sem_post(sem_factory[i]) < 0) {
 																																printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]); /* Error message */
