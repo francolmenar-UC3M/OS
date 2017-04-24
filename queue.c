@@ -27,7 +27,8 @@ int queue_put(struct element* x) {
 	else if(queue_empty() == 1){ //If the queue is empty
 		x -> last = 1; //It is the last
 	}
-	for(int i = 0; i < number_of_elements; i++){
+	int i;
+	for(i = 0; i < number_of_elements; i++){
 		if(circular_buffer[i].last == 1){ //It is the last element in the queue
 			circular_buffer[i].last = 0; //It is no more the last element
 			circular_buffer [(i+1) % max_capacity] = *x; //I insert the element into the queue. It is the possition of the
@@ -42,7 +43,8 @@ int queue_put(struct element* x) {
 // To Dequeue an element.
 struct element* queue_get(void) {
 	struct element* aux = malloc(sizeof(struct element));//We allocate the memory needed for the auxiliar element
-	for(int i = 0; i < number_of_elements; i++){ //I go through all the queue
+	int i;
+	for(i = 0; i < number_of_elements; i++){ //I go through all the queue
 		if(circular_buffer[i].last == 1){ //It is the last element in the queue
 			*aux = circular_buffer [(i+1) % max_capacity];
 		}

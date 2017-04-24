@@ -45,6 +45,8 @@ int main (int argc, const char * argv[] ){
                 return -1;
         }
 
+	
+
         printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[4]);
 
         if(sem_close(sem_process)<0) {

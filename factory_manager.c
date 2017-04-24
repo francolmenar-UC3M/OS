@@ -25,6 +25,17 @@ int check_number(char argv){
 	return -1;
 }
 
+/*
+  It is a method in charge of 
+*/
+int throwError(char* error){
+	if (write(2,error,strlen(error))<0){
+			perror("Error writing the error"); //Error message
+			return -1;
+		}
+	return 0;
+}
+
 /* This class receives a path to a file as input parameter.
 Returns 0 if correct execution, else, returns -1.
 */
@@ -35,12 +46,14 @@ int main (int argc, const char * argv[] ){
 	int num_rows;            /* Max number of processes created by factory_manager, whose parameters are stored in rows */
 	int status, pid;         /* Variables needed when working with fork() */
 	sem_t* sem_factory;      /* Name of the semaphore to coordinate all the processes from factory_manager */
+	char *error;
 
 	/* argv[0] --> name of the program
 	   argv[1] --> name of the input file 
 	   Therefore, number of arguments must be 2 */
 	if(argc!=2){
-		printf("[ERROR][factory_manager] Invalid file\n");
+		error = "[ERROR][factory_manager] Invalid file\n";
+		throwError(error);
 		exit(-1);
 	}
 	
@@ -131,6 +144,7 @@ int main (int argc, const char * argv[] ){
 			
 		/* semName stores the name of the named semaphore we use for synchronizing processes */
 		char* semName = "/sem";
+		size--;
 		
 		/* First thing to do is to check if the number of processes parsed are different from 0.
 		aux can only be a string of digits from 0 to 9. Therefore, atoi only returns 0 if the actual value is 0, not for any error */
@@ -161,12 +175,15 @@ int main (int argc, const char * argv[] ){
 					}
 					
 					else if(k==2){/* Concatenation of sem and the id process */
-						char str[80];
+						int aux_length = strlen(param[j][1]); //We calculate the length of the id
+						aux_length += strlen(semName);//We calculate the length of the semaphore's name
+						char *str = malloc(aux_length+1);
 						strcpy(str, semName);
 						strcat(str,param[j][1]);
-						param[j][k] = malloc(80*sizeof(char));
+						param[j][k] = malloc(aux_length+1);//We just assign the length that we need 
 						strcpy(param[j][k],str);
 						k++;
+						free(str);//We free the auxiliary buffer
 					}
 					
 					/* In the same case as in the number of processes, we get the full number digit by digit.
