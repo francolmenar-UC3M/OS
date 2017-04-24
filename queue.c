@@ -6,6 +6,7 @@
 struct element *circular_buffer; //It is the queue as an circular_buffer
 int number_of_elements; //It is the number of elements currently in the queue
 int max_capacity;//The maximum number of elements that the queue can have
+int counter;//To assign the num_edition
 
 /*
 	Function that creates the queue and reserves
@@ -26,6 +27,7 @@ int queue_put(struct element* x) {
 	}
 	else if(queue_empty() == 1){ //If the queue is empty
 		x -> last = 1; //It is the last
+		printf("Last %i\n", x -> last);
 	}
 	int i;
 	for(i = 0; i < number_of_elements; i++){
@@ -36,6 +38,8 @@ int queue_put(struct element* x) {
 		}
 	}
 	number_of_elements++; //There is one element more in the queue
+	x -> num_edition = counter;
+	counter++;
 	return 0;
 }
 

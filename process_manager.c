@@ -23,7 +23,13 @@ void *PrintHello(void *threadid){
         pthread_exit(0);
 }
 
+void estaVacio(void){
+	if(queue_empty() == 1){
+	printf("The queue is empty\n");
 
+}
+	else 	printf("The queue is not empty\n");
+}
 int main (int argc, const char * argv[] ){
 
         sem_t *sem_process;
@@ -44,9 +50,22 @@ int main (int argc, const char * argv[] ){
                 printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]);
                 return -1;
         }
-
-	
-
+	printf("Create the queue\n");
+	queue_init(4);
+	estaVacio();
+	struct element test = {5,atoi(argv[1]),0};
+	printf("Insert 5 in the queue\n");
+	queue_put(&test);
+	estaVacio();
+	struct element test1 = {7,atoi(argv[1]),0};
+	printf("Insert 7 in the queue\n");
+	queue_put(&test1);
+	struct element *viene;
+	viene =  queue_get();
+	printf("Returnea %i in the queue\n",viene -> id_belt);
+	estaVacio();
+	printf("Destroy the queue\n");
+	queue_destroy();
         printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[4]);
 
         if(sem_close(sem_process)<0) {
