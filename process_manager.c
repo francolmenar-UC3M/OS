@@ -27,7 +27,6 @@ void *PrintHello(void *threadid){
 void estaVacio(void){
 	if(queue_empty() == 1){
 	printf("The queue is empty\n");
-
 }
 	else if(queue_full() == 1){
 	printf("The queue is full\n");
@@ -38,6 +37,14 @@ void estaVacio(void){
 int main (int argc, const char * argv[] ){
 
         sem_t *sem_process;
+		pthread_t producer, consumer;
+		
+		pthread_mutex_t mutex;
+		
+		pthread_cond_t no_full;
+		pthread_cond_t no_empty;
+		
+		int n_elements;
 
         if(argc!=5) {
                 printf("[ERROR][process_manager] Arguments not valid.\n");
@@ -55,6 +62,72 @@ int main (int argc, const char * argv[] ){
                 printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]);
                 return -1;
         }
+		/* init_belt SIN TERMINAR */
+		if(execvp("./queue",param[i])<0) {  /* Execute process_manager with the parameters of param */
+			ThrowError_ProcessManager(param[i][1]); /* Error message */                  				  /* Error message */
+			return -1;
+		}
+		
+		printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[4]);
+		
+		if(pthread_mutex_init(&mutex,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_mutex_init(&mutex,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_cond_init(&no_full,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_cond_init(&no_empty,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_create(&producer,NULL,producer,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_create(&consumer,NULL,consumer,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_join(producer,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_join(consumer,NULL)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_mutex_destroy(&mutex)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_cond_destroy(&no_full)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		if(pthread_cond_destroy(&no_empty)!=0){
+			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
+			return -1;
+		}
+		
+		producer(){
+			
+		}
 	/* Testeo
 	queue_init(4);
 	estaVacio();
@@ -88,7 +161,6 @@ int main (int argc, const char * argv[] ){
 	estaVacio();
 	printf("Destroy the queue\n");
 	queue_destroy();*/
-        printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[4]);
 
         if(sem_close(sem_process)<0) {
                 printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]);
