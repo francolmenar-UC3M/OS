@@ -22,21 +22,15 @@ int queue_init(int size){
 
 // To Enqueue an element
 int queue_put(struct element* x) {
-	printf("Max capacity: %i\n",max_capacity);
 	if(queue_full() == 1){//Check if the queue is full
 		return -1;//If it is full no inserting is done
 	}
 	else if(queue_empty() == 1){ //If the queue is empty
 		x -> last = 1; //It is the last
-		printf("Last %i\n", x -> last);
 		x -> num_edition = counter;
 		circular_buffer[0] = *x; 
 		number_of_elements++; //There is one element more in the queue
 		counter++;
-		printf("\tAssignation of values\n");
-		printf("Id %i of the queue\n",circular_buffer[0].id_belt);
-		printf("Num %i of the queue\n",circular_buffer[0].num_edition);
-		printf("Ultimo %i of the queue\n",circular_buffer[0].last);
 		return 0;
 	}
 	int i;
@@ -48,12 +42,6 @@ int queue_put(struct element* x) {
 			number_of_elements++; //There is one element more in the queue
 			counter++;
 			circular_buffer [(i+1) % max_capacity] = *x; //I insert the element into the queue. It is the possition of the
-			//loop +1 mod max_capacity in order to avoid problems with the last position of the buffer
-			//circular_buffer [i+1] = *x; 
-			printf("\tAssignation of values %i\n",i);
-			printf("Id %i of the queue\n",circular_buffer[i+1].id_belt);
-			printf("Num %i of the queue\n",circular_buffer[i+1].num_edition);
-			printf("Ultimo %i of the queue\n",circular_buffer[i+1].last);
 			return 0;
 		}
 	}
@@ -69,9 +57,7 @@ struct element* queue_get(void) {
 	int i;
 	for(i = 0; i < max_capacity; i++){ //I go through all the queue
 		if(circular_buffer[i].last == 1){ //It is the last element in the queue
-			printf("%i\n", i);
 			*aux = circular_buffer [((i+1)-number_of_elements) % max_capacity];
-			printf("%i\n", ((i+1)-number_of_elements) % max_capacity);
 		}
 	}
 	number_of_elements--;//There is one element less int the queue
