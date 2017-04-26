@@ -289,7 +289,7 @@ int main (int argc, const char * argv[] ){
 				
 				case 0: /* Child process, the one which executes process_manager */
 				
-				ThrowError_ProcessManager(param[i][1]); /* Error message */
+				printf("[OK][factory_manager] Process_manager with id %s has been created.\n",param[i][1]);
 				
 				if (sem_wait(sem_factory[i])<0) {
 					ThrowError_ProcessManager(param[i][1]); /* Error message */
