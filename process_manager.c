@@ -14,6 +14,9 @@
 #include <semaphore.h>
 #include <signal.h>
 
+pthread_mutex_t mutex;
+pthread_cond_t no_full, no_empty;
+		
 //Thread function
 void *PrintHello(void *threadid){
         long tid;
@@ -23,26 +26,78 @@ void *PrintHello(void *threadid){
         pthread_exit(0);
 }
 
-/* Testeo
-void estaVacio(void){
-	if(queue_empty() == 1){
-	printf("The queue is empty\n");
-}
-	else if(queue_full() == 1){
-	printf("The queue is full\n");
+void *producer_exec(void* param){
+	
+	struct element* elem;
+	elem->id_belt=1;
+	//printf("Producer: %i\n",queue_full());
+	int i;
+	for (i=0; i<2; i++){
+		
+		if(pthread_mutex_lock(&mutex)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+		
+		while(queue_full()){
+		if(pthread_cond_wait(&no_full,&mutex)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+		}
+		
+		if(queue_put(elem)<0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+		printf("[OK][queue] Introduced element with id: %i in belt %i\n",elem->num_edition,elem->id_belt);
+	
+		if(pthread_cond_signal(&no_empty)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+		if(pthread_mutex_unlock(&mutex)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+	
 	}
-	else 	printf("The queue is a la mitad\n");
+	//printf("Producer: %i\n",queue_full());
+	pthread_exit(0);
 }
-*/
+		
+void *consumer_exec(void* param){
+	
+	struct element* elem;
+	elem->id_belt=1;
+	printf("Consumer: okidoki\n");
+	
+	int i;
+	for (i=0; i<2; i++){
+		
+		if(pthread_mutex_lock(&mutex)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+	
+		while(queue_empty()){
+		if(pthread_cond_wait(&no_empty,&mutex)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+		}
+		
+		elem = queue_get();
+		
+		printf("[OK][queue] Obtained element with id: %i in belt %i\n",elem->num_edition,elem->id_belt);
+	
+		if(pthread_cond_signal(&no_full)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+		if(pthread_mutex_unlock(&mutex)!=0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		}
+	}
+	pthread_exit(0);
+}
+
 int main (int argc, const char * argv[] ){
 
         sem_t *sem_process;
 		pthread_t producer, consumer;
-		
-		pthread_mutex_t mutex;
-		
-		pthread_cond_t no_full;
-		pthread_cond_t no_empty;
 		
 		int n_elements;
 
@@ -62,18 +117,10 @@ int main (int argc, const char * argv[] ){
                 printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]);
                 return -1;
         }
-		/* init_belt SIN TERMINAR */
-		if(execvp("./queue",param[i])<0) {  /* Execute process_manager with the parameters of param */
-			ThrowError_ProcessManager(param[i][1]); /* Error message */                  				  /* Error message */
-			return -1;
-		}
 		
-		printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[4]);
+		queue_init(atoi(argv[3]));
 		
-		if(pthread_mutex_init(&mutex,NULL)!=0){
-			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
-			return -1;
-		}
+		printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[3]);
 		
 		if(pthread_mutex_init(&mutex,NULL)!=0){
 			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
@@ -90,12 +137,12 @@ int main (int argc, const char * argv[] ){
 			return -1;
 		}
 		
-		if(pthread_create(&producer,NULL,producer,NULL)!=0){
+		if(pthread_create(&producer,NULL,producer_exec,NULL)!=0){
 			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
 			return -1;
 		}
 		
-		if(pthread_create(&consumer,NULL,consumer,NULL)!=0){
+		if(pthread_create(&consumer,NULL,consumer_exec,NULL)!=0){
 			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
 			return -1;
 		}
@@ -109,6 +156,8 @@ int main (int argc, const char * argv[] ){
 			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
 			return -1;
 		}
+		
+		queue_destroy();
 		
 		if(pthread_mutex_destroy(&mutex)!=0){
 			printf("[ERROR][process_manager] There was an error executing process_manager with id: %s.\n",argv[1]); /* Error message */
@@ -125,9 +174,8 @@ int main (int argc, const char * argv[] ){
 			return -1;
 		}
 		
-		producer(){
-			
-		}
+		printf("[OK][process_manager] Process_manager with id: %s has produced %s elements.\n",argv[1],argv[4]);
+		
 	/* Testeo
 	queue_init(4);
 	estaVacio();
