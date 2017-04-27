@@ -155,7 +155,7 @@ int main (int argc, const char * argv[] ){
 		}
 		
 		num_rows = atoi(aux);      /* aux will be used for other purposes, so we store the number of rows of the matrix */
-		size--;
+		
 		char* param[num_rows][6];  /* Declare the resulting matrix as we know its number of rows */
 		
 		/* j and k are used for indicating the current position of row (j) and colum (k) */
@@ -257,7 +257,7 @@ int main (int argc, const char * argv[] ){
 			ThrowError_InvalidFile();		                    /* Error message */
 			exit(-1);		
 		}
-
+		
 		/* PARSER ENDS */
 		
 		/* SYNCHRONIZATION STARTS */
@@ -275,8 +275,10 @@ int main (int argc, const char * argv[] ){
 		for (i = 0; i<j; i++){       /* It goes through each process_manager to be created */
 		
 			/* Open a semaphore for managing the creation of processes. */
+			
 			if((sem_factory[i] = sem_open(param[i][2],O_CREAT,0644,0))==SEM_FAILED){
-			printf("[ERROR][factory_manager] Process_manager with id %s has finished with errors.\n", param[i][1]);  /* Error message */
+			
+			ThrowError_ProcessManager(param[i][1]); /* Error message */
   			return -1;
 			}
 			
@@ -297,6 +299,7 @@ int main (int argc, const char * argv[] ){
 				}
 				
 				if(execvp(param[i][0],param[i])<0) {  /* Execute process_manager with the parameters of param */
+					
 					ThrowError_ProcessManager(param[i][1]); /* Error message */                  				  /* Error message */
 					return -1;
 				}
@@ -336,13 +339,12 @@ int main (int argc, const char * argv[] ){
 							return -1;
 						}	
 						
-							/* Remove the named semaphore referred by semName (free resources). If the result is negative --> error */
-							if(sem_unlink(param[i][2])<0){
-								ThrowError_ProcessManager(param[i][1]); /* Error message */   
-								return -1;
-							}
+						/* Remove the named semaphore referred by semName (free resources). If the result is negative --> error */
+						if(sem_unlink(param[i][2])<0){
+							ThrowError_ProcessManager(param[i][1]); /* Error message */   
+							return -1;
+						}
 						
-					
 						printf("[OK][factory_manager] Process_manager with id %s has finished.\n",param[i][1]);
 					}
 				}
