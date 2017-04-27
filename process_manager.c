@@ -16,44 +16,38 @@
 
 pthread_mutex_t mutex;
 pthread_cond_t no_full, no_empty;
-		
-//Thread function
-void *PrintHello(void *threadid){
-        long tid;
-        tid = (long)threadid;
-        printf("Hello World! It's me, thread #%ld!\n", tid);
-        printf("Thread #%ld ends\n", tid);
-        pthread_exit(0);
-}
+int elemTo;
+int idBelt;
 
 void *producer_exec(void* param){
 	
-	struct element* elem;
-	elem->id_belt=1;
-	//printf("Producer: %i\n",queue_full());
 	int i;
-	for (i=0; i<2; i++){
+	for (i=0; i<elemTo; i++){
+		//struct element* elem;
+		//elem->id_belt=idBelt;
 		
+struct element elem={i,idBelt,-1};
+
 		if(pthread_mutex_lock(&mutex)!=0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
 		}
 		
-		while(queue_full()){
-		if(pthread_cond_wait(&no_full,&mutex)!=0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
-		}
+		while(queue_full()==1){
+			if(pthread_cond_wait(&no_full,&mutex)!=0){
+			printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
+			}
 		}
 		
-		if(queue_put(elem)<0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		if(queue_put(&elem)<0){
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
 		}
-		printf("[OK][queue] Introduced element with id: %i in belt %i\n",elem->num_edition,elem->id_belt);
+		printf("[OK][queue] Introduced element with id: %i in belt %i\n",i,idBelt);
 	
 		if(pthread_cond_signal(&no_empty)!=0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
 		}
 		if(pthread_mutex_unlock(&mutex)!=0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
 		}
 	
 	}
@@ -63,21 +57,20 @@ void *producer_exec(void* param){
 		
 void *consumer_exec(void* param){
 	
-	struct element* elem;
-	elem->id_belt=1;
-	printf("Consumer: okidoki\n");
+	//printf("Consumer: okidoki\n");
 	
 	int i;
-	for (i=0; i<2; i++){
+	for (i=0; i<elemTo; i++){
+		struct element* elem;
 		
 		if(pthread_mutex_lock(&mutex)!=0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
+		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
 		}
 	
-		while(queue_empty()){
-		if(pthread_cond_wait(&no_empty,&mutex)!=0){
-		printf("[ERROR][queue] There was an error while using queue with id: %i.\n",elem->id_belt); /* Error message */
-		}
+		while(queue_empty()==1){
+			if(pthread_cond_wait(&no_empty,&mutex)!=0){
+			printf("[ERROR][queue] There was an error while using queue with id: %i.\n",idBelt); /* Error message */
+			}
 		}
 		
 		elem = queue_get();
@@ -119,6 +112,8 @@ int main (int argc, const char * argv[] ){
         }
 		
 		queue_init(atoi(argv[3]));
+		idBelt = atoi(argv[1]);
+		elemTo = atoi(argv[4]);
 		
 		printf("[OK][process_manager] Belt with id: %s has been created with a maximum of %s elements.\n",argv[1],argv[3]);
 		

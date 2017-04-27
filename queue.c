@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "queue.h" /* https://github.com/stockrt/queue.h/blob/master/sample.c */
+#include "queue.h"
 
 struct element *circular_buffer; //It is the queue as an circular_buffer
 int number_of_elements; //It is the number of elements currently in the queue

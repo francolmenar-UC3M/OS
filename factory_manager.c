@@ -155,7 +155,7 @@ int main (int argc, const char * argv[] ){
 		}
 		
 		num_rows = atoi(aux);      /* aux will be used for other purposes, so we store the number of rows of the matrix */
-		
+		size--;
 		char* param[num_rows][6];  /* Declare the resulting matrix as we know its number of rows */
 		
 		/* j and k are used for indicating the current position of row (j) and colum (k) */
