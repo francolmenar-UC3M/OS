@@ -170,8 +170,41 @@ int main (int argc, const char * argv[] ){
 		if (num_rows!=0){	
 			/* Go over all the content of the buffer, using the counter i -up to size, the length of buf- */
 			while (i<size){
+				if(k==0){
+					param[j][k] = "./process";
+					k++;
+				}
+				else if(k==1 && (buf[i]>32 && buf[i]<127)){
+					/* After knowing the char is a char, we must ensure that we are not creating more processes than the max.
+					This happens when j (actual colum) is equal to the number of rows (max = num_rows -1) */
+					if (j == num_rows){
+					ThrowError_InvalidFile();		                    /* Error message */
+					exit(-1);
+					}
+					
+					else{
+					/* Correct functioning reaching a char.
+					Reset the value of aux --> empty string */
+					memset(aux,0,sizeof aux);
+					
+					/* Copy all the string for ID in aux (until we reach a space) */
+					while(buf[i]>32 && buf[i]<127){
+						aux2[0]=buf[i];
+						strcat(aux,aux2);
+						i++;
+					}
+					/* Allocate memory for storing the ID */
+					if((param[j][k]=malloc(sizeof aux + 1))==NULL){
+						ThrowError_InvalidFile();		                    /* Error message */
+						exit(-1);
+					}
+					/* Finally, copy aux inside the correct position of the matrix */
+					strcpy(param[j][k],aux); /* Copy the value to param[j][k] from aux */
+					k++;
+					}
+				}
 				/* Then, we check if the next char in the buffer is an number or not */
-				if (check_number(buf[i])==0){
+				else if (check_number(buf[i])==0){
 					/* After knowing the char is a digit, we must ensure that we are not creating more processes than the max.
 					This happens when j (actual colum) is equal to the number of rows (max = num_rows -1) */
 					if (j == num_rows){
@@ -188,12 +221,8 @@ int main (int argc, const char * argv[] ){
 					Position 0: name of the program we will call "./process" 
 					Position 2: name of the semaphore, stored in semName 
 					Position 5: NULL, termination of the string. */
-					if(k==0){
-						param[j][k] = "./process";
-						k++;
-					}
 					
-					else if(k==2){/* Concatenation of sem and the id process */
+					if(k==2){/* Concatenation of sem and the id process */
 						int aux_length = strlen(param[j][1]); /* Calculate the length of the id */
 						aux_length += strlen(semName);        /* Calculate the length of the semaphore's name plus the length of the id */
  						char *str = malloc(aux_length+1);     /* Allocate memory for the previous string */
@@ -258,6 +287,25 @@ int main (int argc, const char * argv[] ){
 			exit(-1);		
 		}
 		
+		/* Check if two processes have the same ID */
+		for (i = 0; i<j; i++){
+			for (k = 0; k<j; k++){
+				/* Check each ID with all other process ID.
+				Next, check if both are equal except it referrs to the same process */
+				if (strcmp(param[i][1], param[k][1])==0){
+					ThrowError_InvalidFile();		                    /* Error message */
+					exit(-1);
+				}
+			}
+		}
+		
+		/* Check if the maximum size of the belt is 0 and the number of elements introduced is greater than 0 */
+		for (i = 0; i<j; i++){
+			if (atoi(param[i][3]) == 0 && atoi(param[i][4]) > 0 ){
+				ThrowError_InvalidFile();		                    /* Error message */
+				exit(-1);
+			}
+		}
 		/* PARSER ENDS */
 		
 		/* SYNCHRONIZATION STARTS */
@@ -328,7 +376,7 @@ int main (int argc, const char * argv[] ){
 						while(wait(&status) == getpid()){
 							/* Check for possible errors */
 							if (status != 0) {
-								perror("Error waiting the children."); /* Error message */
+								ThrowError_ProcessManager(param[i][1]); /* Error message */
 								return -1;
 							}
 						}
